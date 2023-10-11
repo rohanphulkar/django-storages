@@ -27,7 +27,7 @@ from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
 from storages.utils import setting
-
+import random
 
 class FTPStorageException(Exception):
     pass
@@ -72,6 +72,7 @@ class FTPStorage(Storage):
         config["passwd"] = splitted_url.password
         config["port"] = int(splitted_url.port)
 
+
         return config
 
     def _start_connection(self):
@@ -85,6 +86,7 @@ class FTPStorage(Storage):
         # Real reconnect
         if self._connection is None:
             ftp = ftplib.FTP()
+            ftp.set_pasv(False)
             ftp.encoding = self.encoding
             try:
                 ftp.connect(self._config["host"], self._config["port"])
@@ -124,8 +126,14 @@ class FTPStorage(Storage):
             self._mkremdirs(os.path.dirname(name))
             pwd = self._connection.pwd()
             self._connection.cwd(os.path.dirname(name))
+            file_name, file_extension = os.path.splitext(name)
+            # Generate a random number
+            random_number = random.randint(000000, 999999)
+
+            # Create the new file name with the random number
+            name = f"{file_name}-{random_number}{file_extension}"
             self._connection.storbinary(
-                "STOR " + os.path.basename(name),
+                f"STOR " + os.path.basename(name),
                 content.file,
                 content.DEFAULT_CHUNK_SIZE,
             )
