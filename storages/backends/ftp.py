@@ -126,12 +126,7 @@ class FTPStorage(Storage):
             self._mkremdirs(os.path.dirname(name))
             pwd = self._connection.pwd()
             self._connection.cwd(os.path.dirname(name))
-            file_name, file_extension = os.path.splitext(name)
-            # Generate a random number
-            random_number = random.randint(000000, 999999)
-
-            # Create the new file name with the random number
-            name = f"{file_name}-{random_number}{file_extension}"
+            
             self._connection.storbinary(
                 f"STOR " + os.path.basename(name),
                 content.file,
@@ -162,6 +157,11 @@ class FTPStorage(Storage):
     def _save(self, name, content):
         content.open()
         self._start_connection()
+        file_name, file_extension = os.path.splitext(name)
+        # Generate a random number
+        random_number = random.randint(000000, 999999)
+        # Create the new file name with the random number  
+        name = f"{file_name}-{random_number}{file_extension}"
         self._put_file(name, content)
         content.close()
         return name
