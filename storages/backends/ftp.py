@@ -27,7 +27,7 @@ from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
 from storages.utils import setting
-import random
+import random,string
 
 class FTPStorageException(Exception):
     pass
@@ -159,9 +159,10 @@ class FTPStorage(Storage):
         self._start_connection()
         file_name, file_extension = os.path.splitext(name)
         # Generate a random number
-        random_number = random.randint(000000, 999999)
+        characters = string.ascii_letters + string.digits
+        random_string = ''.join(random.choice(characters) for _ in range(12))
         # Create the new file name with the random number  
-        name = f"{file_name}-{random_number}{file_extension}"
+        name = f"{file_name}-{random_string}{file_extension}"
         self._put_file(name, content)
         content.close()
         return name
